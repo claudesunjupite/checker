@@ -70,7 +70,7 @@ const Parser = (() => {
   // ===== PARSE QUOTE SHEET =====
   function parseQuoteSheet(ws) {
     const rows = sheetToRows(ws);
-    const headerIdx = findHeaderRow(rows, ['รหัสสินค้า', 'item no', 'รหัส']);
+    const headerIdx = findHeaderRow(rows, ['รหัสสินค้า', 'item no']);
     if (headerIdx < 0) return [];
 
     const header = rows[headerIdx];
@@ -100,7 +100,7 @@ const Parser = (() => {
   function parseEbikSheet(ws, sheetName) {
     const rows = sheetToRows(ws);
     const isReturn = sheetName.includes('คืน') || sheetName.includes('return');
-    const headerIdx = findHeaderRow(rows, ['รหัส', 'รายการ', 'ลำดับ']);
+    const headerIdx = findHeaderRow(rows, ['ลำดับ']);
     if (headerIdx < 0) return [];
 
     const header = rows[headerIdx];
@@ -128,7 +128,7 @@ const Parser = (() => {
   // ===== PARSE SUMMARY SHEET =====
   function parseSummarySheet(ws) {
     const rows = sheetToRows(ws);
-    const headerIdx = findHeaderRow(rows, ['รหัส', 'รายการ', 'ลำดับ']);
+    const headerIdx = findHeaderRow(rows, ['ลำดับ']);
     if (headerIdx < 0) return [];
 
     const header = rows[headerIdx];
