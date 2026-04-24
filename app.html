@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ตรวจสอบใบเบิกอะไหล่</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script>
+    if (!sessionStorage.getItem('auth')) window.location.replace('index.html');
+  </script>
+</head>
+<body>
+
+<!-- ===== UPLOAD STATE ===== -->
+<div id="upload-section">
+  <div class="app-header">
+    <h1>ตรวจสอบใบเบิกอะไหล่</h1>
+    <p class="subtitle">บริษัท จตุโชติ เอ็นจิเนียริ่ง จำกัด</p>
+  </div>
+
+  <div id="drop-zone">
+    <div class="drop-icon">📂</div>
+    <p class="drop-main">ลากไฟล์ Excel มาวางที่นี่</p>
+    <p class="drop-sub">รองรับไฟล์ .xlsx — อัพได้หลายไฟล์พร้อมกัน (เช่น ไฟล์เบิก + ไฟล์สรุปแยกกัน)</p>
+    <button id="btn-select" type="button">เลือกไฟล์</button>
+    <input type="file" id="file-input" accept=".xlsx" multiple hidden>
+  </div>
+
+  <div id="upload-error" class="error-box" hidden></div>
+
+  <div class="mode-hint">
+    <div class="hint-card">
+      <strong>📋 3 ใบ</strong>
+      <span>ใบเบิก + ใบเสนอราคา + ใบสรุป</span>
+    </div>
+    <div class="hint-card">
+      <strong>📋 2 ใบ</strong>
+      <span>ใบเบิก + ใบสรุป</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LOADING ===== -->
+<div id="loading-section" hidden>
+  <div class="spinner"></div>
+  <p>กำลังประมวลผล...</p>
+</div>
+
+<!-- ===== RESULTS STATE ===== -->
+<div id="results-section" hidden>
+  <div class="results-header">
+    <div id="doc-info"></div>
+    <div id="mode-badge"></div>
+  </div>
+
+  <div id="summary-bar"></div>
+
+  <div class="table-toolbar">
+    <div class="filter-group">
+      <span>แสดง:</span>
+      <button class="filter-btn active" data-filter="all">ทั้งหมด</button>
+      <button class="filter-btn" data-filter="pass">✓ ผ่านเท่านั้น</button>
+      <button class="filter-btn" data-filter="fail">❌ ไม่ผ่านเท่านั้น</button>
+    </div>
+    <div class="action-group">
+      <button id="btn-export" type="button">⬇ Export Excel</button>
+      <button id="btn-print" type="button">🖨 พิมพ์</button>
+      <button id="btn-reset" type="button">🔄 ตรวจใหม่</button>
+    </div>
+  </div>
+
+  <div id="warning-box" hidden></div>
+
+  <div class="table-wrapper">
+    <table id="result-table">
+      <thead id="result-thead"></thead>
+      <tbody id="result-tbody"></tbody>
+      <tfoot id="result-tfoot"></tfoot>
+    </table>
+  </div>
+
+  <div id="signature-row" class="signature-row print-only"></div>
+</div>
+
+<!-- ===== PRINT HEADER (hidden on screen, shown on print) ===== -->
+<div id="print-header" class="print-only" hidden></div>
+
+<script src="js/parser.js"></script>
+<script src="js/checker.js"></script>
+<script src="js/exporter.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

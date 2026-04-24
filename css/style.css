@@ -9,6 +9,73 @@ body {
   min-height: 100vh;
 }
 
+/* ===== LOGIN SECTION ===== */
+#login-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.login-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  font-family: 'Kanit', sans-serif;
+}
+
+.login-logo { height: 64px; margin-bottom: 12px; }
+.login-form { display: flex; flex-direction: column; gap: 12px; }
+.login-form label { font-size: 17px; color: #333; font-weight: bold; }
+
+.password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.password-wrap input[type="password"],
+.password-wrap input[type="text"] {
+  width: 100%;
+  padding: 10px 44px 10px 14px;
+  font-size: 18px;
+  font-family: inherit;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.password-wrap input:focus { border-color: #2E75B6; }
+#btn-toggle-pw {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.6;
+}
+#btn-toggle-pw:hover { opacity: 1; }
+
+#btn-login {
+  background: #2E75B6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 11px;
+  font-size: 18px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 4px;
+}
+#btn-login:hover { background: #1F4E79; }
+
 /* ===== UPLOAD SECTION ===== */
 #upload-section {
   max-width: 700px;
