@@ -5,9 +5,9 @@ const Parser = (() => {
   // ===== SHEET TYPE DETECTION =====
   function detectSheetType(sheetName) {
     const n = sheetName.toLowerCase();
-    if (n.includes('เสนอราคา') || n.includes('quotation') || n.includes('quote')) return 'quote';
+    if (n.includes('เสนอ') || n.includes('ราคา') || n.includes('quotation') || n.includes('quote')) return 'quote';
     if (n.includes('สรุป') || n.includes('summary')) return 'summary';
-    if (n.includes('เบิก') || n.includes('withdraw') || n.includes('รายการ')) return 'ebik';
+    if (n.includes('เบิก') || n.includes('คืน') || n.includes('withdraw') || /^sj\d+/i.test(sheetName)) return 'ebik';
     return 'unknown';
   }
 
@@ -99,7 +99,7 @@ const Parser = (() => {
   // ===== PARSE EBIK SHEET =====
   function parseEbikSheet(ws, sheetName) {
     const rows = sheetToRows(ws);
-    const isReturn = sheetName.includes('รับคืน') || sheetName.includes('return');
+    const isReturn = sheetName.includes('คืน') || sheetName.includes('return');
     const headerIdx = findHeaderRow(rows, ['รหัส', 'รายการ', 'ลำดับ']);
     if (headerIdx < 0) return [];
 

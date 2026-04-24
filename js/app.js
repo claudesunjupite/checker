@@ -18,7 +18,7 @@
   document.getElementById('btn-select').addEventListener('click', () => fileInput.click());
 
   fileInput.addEventListener('change', e => {
-    if (e.target.files[0]) handleFile(e.target.files[0]);
+    if (e.target.files.length > 0) handleFiles(e.target.files);
   });
 
   dropZone.addEventListener('dragover', e => {
@@ -29,38 +29,59 @@
   dropZone.addEventListener('drop', e => {
     e.preventDefault();
     dropZone.classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
-    if (file) handleFile(file);
+    if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files);
   });
 
-  // ===== HANDLE FILE =====
-  function handleFile(file) {
-    if (!file.name.endsWith('.xlsx')) {
+  // ===== HANDLE FILES (รองรับหลายไฟล์) =====
+  function handleFiles(files) {
+    const xlsxFiles = Array.from(files).filter(f => f.name.endsWith('.xlsx'));
+    if (xlsxFiles.length === 0) {
       showError('กรุณาเลือกไฟล์ .xlsx เท่านั้น');
       return;
     }
     showLoading();
 
-    const reader = new FileReader();
-    reader.onload = e => {
-      try {
-        const parsed = Parser.parseFile(e.target.result);
+    // อ่านทุกไฟล์ด้วย FileReader แบบ parallel
+    const promises = xlsxFiles.map(file => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve({ name: file.name, buffer: e.target.result });
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+    }));
 
-        if (parsed.ebik.length === 0 && parsed.summary.length === 0 && parsed.quote.length === 0) {
+    Promise.all(promises).then(results => {
+      try {
+        // parse ทุกไฟล์แล้ว merge
+        const merged = { mode: '2doc', quote: [], ebik: [], summary: [], meta: {} };
+        for (const { name, buffer } of results) {
+          const parsed = Parser.parseFile(buffer);
+          merged.ebik.push(...parsed.ebik);
+          merged.summary.push(...parsed.summary);
+          merged.quote.push(...parsed.quote);
+          if (parsed.mode === '3doc') merged.mode = '3doc';
+          // ใช้ meta จากไฟล์แรกที่มีข้อมูล
+          if (!merged.meta.docId && parsed.meta.docId) merged.meta = parsed.meta;
+        }
+
+        if (merged.ebik.length === 0 && merged.summary.length === 0 && merged.quote.length === 0) {
           showUpload();
           showError('ไม่พบข้อมูลในไฟล์ — กรุณาตรวจสอบว่า sheet มีชื่อถูกต้อง (ใบเบิก / ใบเสนอราคา / ใบสรุป)');
           return;
         }
 
-        const result = Checker.checkConsistency(parsed);
+        const result = Checker.checkConsistency(merged);
         currentResult = result;
-        currentMeta   = parsed.meta;
+        currentMeta   = merged.meta;
 
-        // เพิ่ม filename เข้า meta
-        currentMeta.filename = file.name.replace('.xlsx', '');
+        // fallback: ใช้ชื่อไฟล์แรก
+        if (!currentMeta.filename) {
+          currentMeta.filename = xlsxFiles[0].name.replace('.xlsx', '');
+        }
         if (!currentMeta.docId) {
-          const m = file.name.match(/Q[A-Z]{2}\d{8}/);
-          if (m) currentMeta.docId = m[0];
+          for (const f of xlsxFiles) {
+            const m = f.name.match(/Q[A-Z]{2}\d{8}/);
+            if (m) { currentMeta.docId = m[0]; break; }
+          }
         }
 
         renderResults(result, currentMeta);
@@ -69,8 +90,10 @@
         showError('เกิดข้อผิดพลาดในการอ่านไฟล์: ' + err.message);
         console.error(err);
       }
-    };
-    reader.readAsArrayBuffer(file);
+    }).catch(err => {
+      showUpload();
+      showError('เกิดข้อผิดพลาดในการอ่านไฟล์: ' + err.message);
+    });
   }
 
   // ===== RENDER RESULTS =====
@@ -237,6 +260,7 @@
     fileInput.value = '';
     currentResult = null;
     currentMeta   = null;
+    warningBox.hidden = true;
     showUpload();
   });
 
