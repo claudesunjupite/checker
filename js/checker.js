@@ -48,8 +48,12 @@ const Checker = (() => {
       const ebikQty    = b.qty;
       const summaryQty = s.qty;
       const quoteQty   = q ? q.qty : null;
-      const price      = q ? q.price : null;
-      const totalPrice = (price && quoteQty) ? price * quoteQty : null;
+
+      // ใช้ราคาจาก quote ก่อน ถ้าไม่มีให้ lookup จาก PriceDB
+      const rawPrice   = q ? q.price : (b.price || s.price || 0);
+      const price      = (rawPrice > 0) ? rawPrice : (typeof PriceDB !== 'undefined' ? PriceDB.get(code) : null);
+      const qtyForTotal = quoteQty ?? summaryQty ?? ebikQty;
+      const totalPrice = (price && qtyForTotal) ? price * qtyForTotal : null;
 
       const name = q?.name || b.name || s.name || '';
       const unit = q?.unit || b.unit || s.unit || '';

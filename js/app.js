@@ -70,6 +70,7 @@
         }
 
         const result = Checker.checkConsistency(merged);
+        PriceDB.updateFromRows(result.rows);  // บันทึกราคาใหม่ที่ยังไม่รู้จัก
         currentResult = result;
         currentMeta   = merged.meta;
 
@@ -161,6 +162,8 @@
         <th class="col-qty">จำนวน<br>(ใบเบิก)</th>
         <th class="col-qty">จำนวน<br>(ใบสรุป)</th>
         <th>หน่วย</th>
+        <th class="col-price">ราคา/หน่วย<br>(บาท)</th>
+        <th class="col-total">ยอดรวม<br>(บาท)</th>
         <th class="col-note">หมายเหตุ</th>
       </tr>`;
     }
@@ -190,6 +193,8 @@
           <td class="col-qty">${row.ebikQty || ''}</td>
           <td class="col-qty">${row.summaryQty || ''}</td>
           <td>${esc(row.unit)}</td>
+          <td class="col-price">${row.price ? fmtNum(row.price) : ''}</td>
+          <td class="col-total">${row.totalPrice ? fmtNum(row.totalPrice) : ''}</td>
           <td class="col-note">${esc(row.status)}</td>
         </tr>`;
       }
@@ -228,21 +233,106 @@
     showResults();
   }
 
-  // ===== FILTER =====
+  // ===== FILTER + SEARCH =====
+  let activeFilter = 'all';
+  let searchQuery  = '';
+
+  function applyFilterSearch() {
+    document.querySelectorAll('#result-tbody tr').forEach(tr => {
+      const statusOk = activeFilter === 'all' || tr.dataset.status === activeFilter;
+      const q = searchQuery.toLowerCase();
+      const textOk = !q || tr.textContent.toLowerCase().includes(q);
+      tr.classList.toggle('row-hidden', !(statusOk && textOk));
+    });
+  }
+
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      const filter = btn.dataset.filter;
-      document.querySelectorAll('#result-tbody tr').forEach(tr => {
-        if (filter === 'all') {
-          tr.classList.remove('row-hidden');
-        } else {
-          const status = tr.dataset.status;
-          tr.classList.toggle('row-hidden', status !== filter);
+      activeFilter = btn.dataset.filter;
+      applyFilterSearch();
+    });
+  });
+
+  document.getElementById('search-input').addEventListener('input', e => {
+    searchQuery = e.target.value;
+    applyFilterSearch();
+  });
+
+  // ===== PRICE DB MODAL =====
+  const modal = document.getElementById('pricedb-modal');
+
+  function renderPriceDB(filter = '') {
+    const q = filter.toLowerCase();
+    const all = PriceDB.getAll().filter(r =>
+      !q || r.code.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)
+    );
+    document.getElementById('modal-stats').textContent =
+      `รหัสทั้งหมด ${PriceDB.count()} รายการ  |  แสดง ${all.length} รายการ`;
+    document.getElementById('pricedb-tbody').innerHTML = all.map(r => `
+      <tr>
+        <td><strong>${esc(r.code)}</strong></td>
+        <td>${esc(r.name)}</td>
+        <td style="text-align:right">${fmtNum(r.price)}</td>
+        <td>${r.isDefault ? '<span class="badge-default">ตั้งต้น</span>' : '<span class="badge-custom">กำหนดเอง</span>'}</td>
+        <td>
+          <button class="btn-edit-price" data-code="${esc(r.code)}" data-price="${r.price}" data-name="${esc(r.name)}">แก้ไข</button>
+          ${!r.isDefault ? `<button class="btn-del-price" data-code="${esc(r.code)}">ลบ</button>` : ''}
+        </td>
+      </tr>
+    `).join('');
+
+    // bind edit/delete
+    document.querySelectorAll('.btn-edit-price').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const code  = btn.dataset.code;
+        const price = parseFloat(prompt(`แก้ไขราคา "${code}" (บาท/หน่วย):`, btn.dataset.price));
+        if (!isNaN(price) && price >= 0) {
+          PriceDB.set(code, price, btn.dataset.name);
+          renderPriceDB(document.getElementById('modal-search').value);
         }
       });
     });
+    document.querySelectorAll('.btn-del-price').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (confirm(`ลบรหัส "${btn.dataset.code}" ออกจากฐานราคา?`)) {
+          PriceDB.remove(btn.dataset.code);
+          renderPriceDB(document.getElementById('modal-search').value);
+        }
+      });
+    });
+  }
+
+  document.getElementById('btn-pricedb').addEventListener('click', () => {
+    modal.hidden = false;
+    document.getElementById('modal-search').value = '';
+    document.getElementById('modal-add-form').hidden = true;
+    renderPriceDB();
+  });
+  document.getElementById('btn-modal-close').addEventListener('click', () => { modal.hidden = true; });
+  modal.addEventListener('click', e => { if (e.target === modal) modal.hidden = true; });
+
+  document.getElementById('modal-search').addEventListener('input', e => renderPriceDB(e.target.value));
+
+  document.getElementById('btn-add-price').addEventListener('click', () => {
+    document.getElementById('modal-add-form').hidden = false;
+    document.getElementById('add-code').focus();
+  });
+  document.getElementById('btn-cancel-add').addEventListener('click', () => {
+    document.getElementById('modal-add-form').hidden = true;
+  });
+  document.getElementById('btn-confirm-add').addEventListener('click', () => {
+    const code  = document.getElementById('add-code').value.trim().toUpperCase();
+    const name  = document.getElementById('add-name').value.trim();
+    const price = parseFloat(document.getElementById('add-price').value);
+    if (!code || isNaN(price) || price < 0) { alert('กรุณากรอกรหัสและราคาให้ถูกต้อง'); return; }
+    PriceDB.set(code, price, name);
+    document.getElementById('add-code').value = '';
+    document.getElementById('add-name').value = '';
+    document.getElementById('add-price').value = '';
+    document.getElementById('modal-add-form').hidden = true;
+    renderPriceDB(document.getElementById('modal-search').value);
   });
 
   // ===== EXPORT =====

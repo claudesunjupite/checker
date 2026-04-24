@@ -43,7 +43,7 @@ const Exporter = (() => {
       wsData.push([
         'ลำดับ', 'รหัสสินค้า', 'ชื่อสินค้า',
         'จำนวน\n(ใบเบิก)', 'จำนวน\n(ใบสรุป)',
-        'หน่วย', 'หมายเหตุ'
+        'หน่วย', 'ราคาต่อหน่วย\n(บาท)', 'ยอดรวม\n(บาท)', 'หมายเหตุ'
       ]);
     }
 
@@ -71,6 +71,8 @@ const Exporter = (() => {
           row.ebikQty || '',
           row.summaryQty || '',
           row.unit,
+          row.price ? fmt(row.price) : '',
+          row.totalPrice ? fmt(row.totalPrice) : '',
           row.status,
         ]);
       }
@@ -99,7 +101,7 @@ const Exporter = (() => {
       ];
     } else {
       ws['!cols'] = [
-        {wch:6},{wch:14},{wch:48},{wch:11},{wch:11},{wch:8},{wch:38}
+        {wch:6},{wch:14},{wch:48},{wch:11},{wch:11},{wch:8},{wch:16},{wch:16},{wch:38}
       ];
     }
 

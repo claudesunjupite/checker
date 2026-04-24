@@ -4,13 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ตรวจสอบใบเบิกอะไหล่</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script>
     if (!sessionStorage.getItem('auth')) window.location.replace('index.html');
   </script>
 </head>
-<body>
+<body class="app-page">
 
 <!-- ===== UPLOAD STATE ===== -->
 <div id="upload-section">
@@ -60,13 +62,15 @@
     <div class="filter-group">
       <span>แสดง:</span>
       <button class="filter-btn active" data-filter="all">ทั้งหมด</button>
-      <button class="filter-btn" data-filter="pass">✓ ผ่านเท่านั้น</button>
-      <button class="filter-btn" data-filter="fail">❌ ไม่ผ่านเท่านั้น</button>
+      <button class="filter-btn" data-filter="pass">✓ ผ่าน</button>
+      <button class="filter-btn" data-filter="fail">❌ ไม่ผ่าน</button>
+      <input type="text" id="search-input" placeholder="🔍 ค้นหารหัส / ชื่อสินค้า..." class="search-input">
     </div>
     <div class="action-group">
-      <button id="btn-export" type="button">⬇ Export Excel</button>
+      <button id="btn-pricedb" type="button">💰 ฐานราคา</button>
+      <button id="btn-export" type="button">⬇ Export</button>
       <button id="btn-print" type="button">🖨 พิมพ์</button>
-      <button id="btn-reset" type="button">🔄 ตรวจใหม่</button>
+      <button id="btn-reset" type="button">🔄 ใหม่</button>
     </div>
   </div>
 
@@ -86,6 +90,41 @@
 <!-- ===== PRINT HEADER (hidden on screen, shown on print) ===== -->
 <div id="print-header" class="print-only" hidden></div>
 
+<!-- ===== PRICE DB MODAL ===== -->
+<div id="pricedb-modal" class="modal-overlay" hidden>
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>💰 ฐานข้อมูลราคา</h2>
+      <button id="btn-modal-close" type="button" class="modal-close">✕</button>
+    </div>
+    <div class="modal-toolbar">
+      <input type="text" id="modal-search" placeholder="🔍 ค้นหารหัส / ชื่อ..." class="search-input">
+      <button id="btn-add-price" type="button" class="btn-add">+ เพิ่มรหัสใหม่</button>
+    </div>
+    <div id="modal-add-form" class="modal-add-form" hidden>
+      <input type="text" id="add-code" placeholder="รหัสสินค้า เช่น E-9999">
+      <input type="text" id="add-name" placeholder="ชื่อสินค้า (ไม่บังคับ)">
+      <input type="number" id="add-price" placeholder="ราคา/หน่วย (บาท)" min="0" step="0.01">
+      <button id="btn-confirm-add" type="button">บันทึก</button>
+      <button id="btn-cancel-add" type="button">ยกเลิก</button>
+    </div>
+    <div class="modal-stats" id="modal-stats"></div>
+    <div class="modal-table-wrap">
+      <table id="pricedb-table">
+        <thead><tr>
+          <th>รหัสสินค้า</th>
+          <th>ชื่อสินค้า</th>
+          <th>ราคา/หน่วย (บาท)</th>
+          <th>ประเภท</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="pricedb-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="js/priceDB.js"></script>
 <script src="js/parser.js"></script>
 <script src="js/checker.js"></script>
 <script src="js/exporter.js"></script>

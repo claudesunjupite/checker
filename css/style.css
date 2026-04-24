@@ -9,6 +9,11 @@ body {
   min-height: 100vh;
 }
 
+/* app.html ใช้ Kanit */
+body.app-page {
+  font-family: 'Kanit', 'Angsana New', sans-serif;
+}
+
 /* ===== LOGIN SECTION ===== */
 #login-section {
   display: flex;
@@ -259,6 +264,142 @@ body {
   font-size: 15px;
   color: #7d5a00;
 }
+
+/* ===== SEARCH INPUT ===== */
+.search-input {
+  padding: 6px 12px;
+  font-size: 15px;
+  font-family: inherit;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  width: 240px;
+  transition: border-color 0.2s;
+}
+.search-input:focus { border-color: #2E75B6; }
+
+/* ===== PRICE DB BUTTON ===== */
+#btn-pricedb { background: #1F4E79; color: #fff; }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay[hidden] { display: none; }
+
+.modal-box {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 780px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px 12px;
+  border-bottom: 1px solid #eee;
+}
+.modal-header h2 { font-size: 20px; color: #1F4E79; }
+.modal-close {
+  background: none; border: none; font-size: 20px;
+  cursor: pointer; color: #888; line-height: 1;
+}
+.modal-close:hover { color: #333; }
+
+.modal-toolbar {
+  display: flex;
+  gap: 10px;
+  padding: 12px 24px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.modal-toolbar .search-input { flex: 1; min-width: 180px; }
+
+.btn-add {
+  background: #375623; color: #fff;
+  border: none; border-radius: 6px;
+  padding: 7px 16px; font-size: 15px;
+  font-family: inherit; cursor: pointer;
+  white-space: nowrap;
+}
+.btn-add:hover { opacity: 0.85; }
+
+.modal-add-form {
+  display: flex;
+  gap: 8px;
+  padding: 0 24px 12px;
+  flex-wrap: wrap;
+  background: #f7f9fc;
+  border-bottom: 1px solid #eee;
+  padding-top: 12px;
+}
+.modal-add-form input {
+  padding: 7px 10px; font-size: 15px; font-family: inherit;
+  border: 1px solid #ccc; border-radius: 6px; outline: none;
+}
+.modal-add-form input:first-child { width: 110px; }
+.modal-add-form input:nth-child(2) { flex: 1; min-width: 140px; }
+.modal-add-form input:nth-child(3) { width: 130px; }
+.modal-add-form button {
+  padding: 7px 14px; font-size: 15px; font-family: inherit;
+  border: none; border-radius: 6px; cursor: pointer;
+}
+#btn-confirm-add { background: #2E75B6; color: #fff; }
+#btn-cancel-add  { background: #ddd; color: #333; }
+
+.modal-stats {
+  padding: 6px 24px;
+  font-size: 14px;
+  color: #777;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-table-wrap {
+  overflow-y: auto;
+  flex: 1;
+  padding: 0 24px 20px;
+}
+
+#pricedb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  margin-top: 8px;
+}
+#pricedb-table th {
+  background: #1F4E79; color: #fff;
+  padding: 8px 10px;
+  text-align: left;
+  position: sticky; top: 0; z-index: 1;
+}
+#pricedb-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #eee;
+}
+#pricedb-table tr:hover td { background: #f5f8ff; }
+
+.badge-default { background: #D6E4F0; color: #1F4E79; padding: 2px 8px; border-radius: 10px; font-size: 13px; }
+.badge-custom  { background: #E2F0D9; color: #375623; padding: 2px 8px; border-radius: 10px; font-size: 13px; }
+
+.btn-edit-price, .btn-del-price {
+  border: none; border-radius: 4px; cursor: pointer;
+  padding: 3px 9px; font-size: 13px; font-family: inherit;
+}
+.btn-edit-price { background: #2E75B6; color: #fff; margin-right: 4px; }
+.btn-del-price  { background: #C00000; color: #fff; }
 
 /* ===== TABLE ===== */
 .table-wrapper {
