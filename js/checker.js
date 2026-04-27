@@ -50,10 +50,14 @@ const Checker = (() => {
       const quoteQty   = q ? q.qty : null;
 
       // ใช้ราคาจาก quote ก่อน ถ้าไม่มีให้ lookup จาก PriceDB
-      const rawPrice   = q ? q.price : (b.price || s.price || 0);
-      const price      = (rawPrice > 0) ? rawPrice : (typeof PriceDB !== 'undefined' ? PriceDB.get(code) : null);
+      const rawPrice    = q ? q.price : (b.price || s.price || 0);
+      const dbPrice     = (typeof PriceDB !== 'undefined') ? PriceDB.get(code) : null;
+      const price       = (rawPrice > 0) ? rawPrice : dbPrice;
       const qtyForTotal = quoteQty ?? summaryQty ?? ebikQty;
-      const totalPrice = (price && qtyForTotal) ? price * qtyForTotal : null;
+      const totalPrice  = (price && qtyForTotal) ? price * qtyForTotal : null;
+
+      // ตรวจราคาไม่ตรง: มีราคาจากไฟล์ AND มีใน DB AND ต่างกัน
+      const priceMismatch = (rawPrice > 0 && dbPrice != null && rawPrice !== dbPrice);
 
       const name = q?.name || b.name || s.name || '';
       const unit = q?.unit || b.unit || s.unit || '';
@@ -102,7 +106,8 @@ const Checker = (() => {
       rows.push({
         code, name, unit,
         ebikQty, quoteQty, summaryQty,
-        price, totalPrice,
+        price, totalPrice, dbPrice,
+        priceMismatch,
         status, rowClass, missing,
       });
     }

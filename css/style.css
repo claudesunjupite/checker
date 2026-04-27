@@ -391,6 +391,10 @@ body.app-page {
 }
 #pricedb-table tr:hover td { background: #f5f8ff; }
 
+/* price mismatch highlight */
+.price-mismatch { background: #FFF3CD !important; color: #7d5a00; font-weight: bold; }
+.price-warn { cursor: help; font-size: 14px; }
+
 .badge-default { background: #D6E4F0; color: #1F4E79; padding: 2px 8px; border-radius: 10px; font-size: 13px; }
 .badge-custom  { background: #E2F0D9; color: #375623; padding: 2px 8px; border-radius: 10px; font-size: 13px; }
 

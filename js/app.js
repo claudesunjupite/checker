@@ -130,10 +130,19 @@
       </div>
     `;
 
-    // Warnings (typo codes)
+    // Warnings: typo codes + price mismatches
     const warnings = Checker.findSuspiciousCodes(rows);
-    if (warnings.length > 0) {
-      warningBox.innerHTML = '⚠️ <strong>พบรหัสที่น่าสงสัย:</strong><br>' + warnings.join('<br>');
+    const priceMismatches = rows
+      .filter(r => r.priceMismatch)
+      .map(r => `รหัส <strong>${esc(r.code)}</strong> — ราคาในไฟล์ <strong>${fmtNum(r.price)}</strong> บาท ≠ ฐานราคา <strong>${fmtNum(r.dbPrice)}</strong> บาท`);
+
+    const allWarnings = [
+      ...(priceMismatches.length ? ['💰 <strong>ราคาไม่ตรงกับฐานข้อมูล:</strong>', ...priceMismatches] : []),
+      ...(warnings.length ? ['🔤 <strong>พบรหัสที่น่าสงสัย:</strong>', ...warnings] : []),
+    ];
+
+    if (allWarnings.length > 0) {
+      warningBox.innerHTML = allWarnings.join('<br>');
       warningBox.hidden = false;
     } else {
       warningBox.hidden = true;
@@ -181,7 +190,7 @@
           <td class="col-qty">${row.quoteQty || ''}</td>
           <td class="col-qty">${row.summaryQty || ''}</td>
           <td>${esc(row.unit)}</td>
-          <td class="col-price">${row.price ? fmtNum(row.price) : ''}</td>
+          <td class="col-price${row.priceMismatch ? ' price-mismatch' : ''}">${row.price ? fmtNum(row.price) : ''}${row.priceMismatch ? ` <span class="price-warn" title="ฐานราคา: ${fmtNum(row.dbPrice)} บาท">⚠️</span>` : ''}</td>
           <td class="col-total">${row.totalPrice ? fmtNum(row.totalPrice) : ''}</td>
           <td class="col-note">${esc(row.status)}</td>
         </tr>`;
@@ -193,7 +202,7 @@
           <td class="col-qty">${row.ebikQty || ''}</td>
           <td class="col-qty">${row.summaryQty || ''}</td>
           <td>${esc(row.unit)}</td>
-          <td class="col-price">${row.price ? fmtNum(row.price) : ''}</td>
+          <td class="col-price${row.priceMismatch ? ' price-mismatch' : ''}">${row.price ? fmtNum(row.price) : ''}${row.priceMismatch ? ` <span class="price-warn" title="ฐานราคา: ${fmtNum(row.dbPrice)} บาท">⚠️</span>` : ''}</td>
           <td class="col-total">${row.totalPrice ? fmtNum(row.totalPrice) : ''}</td>
           <td class="col-note">${esc(row.status)}</td>
         </tr>`;
